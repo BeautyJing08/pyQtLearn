@@ -1,5 +1,10 @@
 # 現在要用這個連線看看mysql
+import sys
 import mysql.connector
+from HelloJing import Ui_MainWindow
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWidgets import QApplication, QMainWindow
+
 
 mydb = mysql.connector.connect(
     host= "localhost",
@@ -18,6 +23,32 @@ for row in result:
 
 cursor.close()
 mydb.close()
+
+
+class MainWindow(QMainWindow, Ui_MainWindow):
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)
+        self.setupUi(self)
+        self.on_binding_ui()
+       
+    def on_binding_ui(self):
+        ## 在這邊綁定 HelloJing.py 內的元件觸發事件
+        ## 以下舉例綁定pushButton 的點擊(click)事件, 當點擊時會去觸發 sql_enter 這個function
+        self.pushButton.clicked.connect(self.sql_enter)
+        
+    def sql_enter():
+        ## 執行對應的sql
+        sql = 'select salon_no, customer_phone, salon_content from order_salon ' \
+              'where exists (select * from order_salon where designer_no = ' + designer_no + ');'
+        cursor.execute(sql)
+        
+        ## （考題）將結果show 在GUI上面
+    
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    application = MainWindow()
+    application.show()
+    sys.exit(app.exec_())
 
 #################### 這是設定member_Table
 
