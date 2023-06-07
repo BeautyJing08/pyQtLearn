@@ -67,6 +67,8 @@ class Ui_MainWindow(object):
 
         result = 0 #初始化結果
         stringBuilder = ""
+        if operator == "":
+            stringBuilder = f"請選擇運算符號"
         if operator == "+":
             result = num1 + num2
             stringBuilder = f"{num1} + {num2} = {result}"
