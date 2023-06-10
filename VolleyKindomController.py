@@ -3,7 +3,25 @@ from VolleyKindomForm import Ui_VolleyKindomForm
 from WeekForm import Ui_WeekForm
 from SignUpForm import Ui_SignUpForm
 
+import sys
+import pymysql.connections
 
+
+mydb = pymysql.connector.connect(
+    host = "localhost",
+    user = "root",
+    password = "53215321",
+    database = "sql_tutorial")
+
+cursor = mydb.cursor()
+cursor.execute("SELECT * FROM member_tatble ")
+
+result = cursor.fetchall()
+for row in result:
+    print(row)
+
+cursor.close()
+mydb.close()
 
 
 
