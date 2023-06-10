@@ -9,7 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from JingForm2 import Ui_Form2
 
 class Ui_MainForm(object):
     def setupUi(self, MainForm):
