@@ -21,13 +21,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainForm):
         self.bottom_openNewForm.clicked.connect(self.showNewWindow)
 
     def showNewWindow(self):
-        self.nw = QtWidgets.QWidget()
-        form2 = Ui_Form2
-        form2.setupUi(self.nw)
-        form2.nw.show()
-        x = self.nw.pos().x()
-        y = self.nw.pos().y()
-        self.nw.move(x+50, y+50)
+        self.form2 = QtWidgets.QWidget()
+        ui = Ui_Form2()
+        ui.setupUi(self.form2)
+        self.form2.show()
+        # self.nw = QtWidgets.QWidget()
+        # form2 = Ui_Form2
+        # form2.setupUi(self.nw)
+        # form2.nw.show()
+        # x = self.nw.pos().x()
+        # y = self.nw.pos().y()
+        # self.nw.move(x+50, y+50)
     # def setup_control(self):
 
 if __name__ == "__main__":
