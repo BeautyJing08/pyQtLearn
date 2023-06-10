@@ -1,3 +1,5 @@
+#  https://steam.oxxostudio.tw/category/python/pyqt5/new-window.html#a1 #看起來是寫出來了
+
 from PyQt5 import QtWidgets, QtGui, QtCore
 from JingMainForm import Ui_MainForm
 from JingForm2 import Ui_Form2
@@ -12,19 +14,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainForm):
 
     def on_binding_ui(self): #這個是拿來綁定各個按鈕的功能
         self.bottom_openNewForm.clicked.connect(self.showNewWindow)
-        self.bottom_inForm2_addLabel.clicked.connect(self.form2_addLabel)
-
+        self.bottom_inForm2_addLabel.clicked.connect(self.changeNewWindowText) #修改newWindowText
+        # self.form2_ui.pushButton.clicked.connect(self.form2ControlForm1Label) #寫在這個方法會無法讀取form2
     def showNewWindow(self): #這是開啟新視窗的功能
-            self.form2 = QtWidgets.QWidget() # 這行程式碼創建了一個名為 form2 的新視窗，使用的是 QtWidgets.QWidget 類別。
-            ui = Ui_Form2()
-            ui.setupUi(self.form2)
+            self.form2 = QtWidgets.QWidget()
+            self.form2_ui = Ui_Form2()
+            self.form2_ui.setupUi(self.form2)
+
+            self.form2_ui.pushButton.clicked.connect(self.form2ControlForm1Label) #要把form2的互動寫在這個方法內
+            # self.hide()  # 這個程式碼的意思是，當我開啟form2視窗時，mainForm會被隱藏
             self.form2.show()
-            self.hide() #這個程式碼的意思是，當我開啟form2視窗時，mainForm會被隱藏
 
-    def form2_addLabel(self):
-        # self.form2 = Ui_Form2()
-        self.form2.ui.From2_label.setText('點擊按鈕囉')
+    def changeNewWindowText(self):
+        self.form2_ui.From2_label.setVisible(True)
+        self.form2_ui.From2_label.setText("點擊新視窗的按鈕囉")
 
+    def form2ControlForm1Label(self):
+        self.word_label.setText("Form2修改Form1")
 
 
 if __name__ == "__main__":

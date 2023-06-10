@@ -26,9 +26,9 @@ class Ui_Form2(object):
         self.pushButton.setObjectName("pushButton")
         self.From2_label = QtWidgets.QLabel(Form2)
         self.From2_label.setEnabled(False)
-        self.From2_label.setGeometry(QtCore.QRect(60, 40, 47, 20))
+        self.From2_label.setGeometry(QtCore.QRect(60, 40, 180, 20))
         self.From2_label.setObjectName("From2_label")
-
+        self.From2_label.setVisible(False)
         self.retranslateUi(Form2)
         QtCore.QMetaObject.connectSlotsByName(Form2)
 
