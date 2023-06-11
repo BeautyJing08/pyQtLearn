@@ -14,6 +14,7 @@ def openMydb():
         database = "volleykindom2")
     return  mydb
 
+# 首先來開啟資料庫 ###################################################
 mydb = openMydb()
 cursor = mydb.cursor()
 query = "SELECT * FROM weektable " #把所有weekTable的資料讀取出來
@@ -38,28 +39,8 @@ for row in cursor:
     weekTagArray.append(week_Tag) #把週次 tag 傳進weekTagArray
     dataArray.append(smallarray) #再把當週資料傳進printarray
 
-
-print(weekTagArray)
-print(dataArray[0])
-string = dataArray[0][-2]
-startDate = string[:2] + string[3:]
-print(startDate)
-print(dataArray[1])
-#
-# result = cursor.fetchall()
-# for row in result:
-#     print(row)
-
 cursor.close()
 mydb.close()
-
-# mydb = openMydb()
-# cursor3 = mydb.cursor()
-# query3 = "SELECT * FROM weektable WHERE weekTag = %s"
-# params = (selected_weekTag,)
-# cursor3.execute(query3, params)
-# result = cursor2.fetchone()
-# print(result)
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
@@ -72,55 +53,85 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
 
     def on_binding_ui(self): #這個是拿來綁定各個按鈕的功能
         self.Buttom_Im_player.clicked.connect(self.showWeekForm)
+
         # self.bottom_inForm2_addLabel.clicked.connect(self.form2_addLabel)
         # end function
 
+    #顯示 WeekForm
     def showWeekForm(self):
         self.weekForm = QtWidgets.QWidget()
-        ui = Ui_WeekForm()
-        ui.setupUi(self.weekForm)
-        ui.comboBox_weekBox.clear() #把預設combobox的內容都先給清空
-        ui.comboBox_weekBox.addItem("")
+        self.WeekForm_ui = Ui_WeekForm()
+        self.WeekForm_ui.setupUi(self.weekForm)
+        self.WeekForm_ui.comboBox_weekBox.clear() #把預設combobox的內容都先給清空
+        self.WeekForm_ui.comboBox_weekBox.addItem("")
         for weekTag in weekTagArray:
-            ui.comboBox_weekBox.addItem(weekTag) #把讀到的週次資料給顯示出來 (放進combobox)
+            self.WeekForm_ui.comboBox_weekBox.addItem(weekTag) #把讀到的週次資料給顯示出來 (放進combobox)
+        #先讓預設的pushBottom都清空
+        self.WeekForm_ui.pushButton.setText(""),self.WeekForm_ui.pushButton_2.setText(""), self.WeekForm_ui.pushButton_3.setText(""),self.WeekForm_ui.pushButton_4.setText(""), self.WeekForm_ui.pushButton_5.setText(""), self.WeekForm_ui.pushButton_6.setText(""),self.WeekForm_ui.pushButton_7.setText("")
+        #先讓預設的pushBottom為禁用
+        def FalusAllpushBottom():
+            self.WeekForm_ui.pushButton.setEnabled(False), self.WeekForm_ui.pushButton_2.setEnabled(False), self.WeekForm_ui.pushButton_3.setEnabled(
+                False), self.WeekForm_ui.pushButton_4.setEnabled(False), self.WeekForm_ui.pushButton_5.setEnabled(False),self.WeekForm_ui.pushButton_6.setEnabled(False),self.WeekForm_ui.pushButton_7.setEnabled(False)
+        FalusAllpushBottom() #禁用所有pushBottom
+
+        def TrueAllpushBottom():
+            self.WeekForm_ui.pushButton.setEnabled(True), self.WeekForm_ui.pushButton_2.setEnabled(True), self.WeekForm_ui.pushButton_3.setEnabled(
+                True), self.WeekForm_ui.pushButton_4.setEnabled(True), self.WeekForm_ui.pushButton_5.setEnabled(
+                True), self.WeekForm_ui.pushButton_6.setEnabled(True), self.WeekForm_ui.pushButton_7.setEnabled(True)
         # end function
 
-
-
         def updatePushBottomText(index):
-            selected_weekTag = ui.comboBox_weekBox.itemText(index)
+            selected_weekTag = self.WeekForm_ui.comboBox_weekBox.itemText(index)
             if selected_weekTag == "":
                 print("這沒有資料")
+                FalusAllpushBottom()
+                self.WeekForm_ui.pushButton.setText(""),self.WeekForm_ui.pushButton_2.setText("") ,self.WeekForm_ui.pushButton_3.setText(""),self.WeekForm_ui.pushButton_4.setText(""),self.WeekForm_ui.pushButton_5.setText("") ,self.WeekForm_ui.pushButton_6.setText(""),self.WeekForm_ui.pushButton_7.setText("")
             else:
                 print(selected_weekTag) #這是嘗試印出combox item有變動時的內容資料 #也成功惹
-
+                TrueAllpushBottom() #打開所有按鈕
                 mydb = openMydb() #重啟資料庫
                 cursor2 = mydb.cursor()
                 query2 = "SELECT * FROM weektable WHERE weekTag = %s"
                 params = (selected_weekTag,)
                 cursor2.execute(query2, params)
                 result = cursor2.fetchone()
-                print(result)
-                print(result[1])
-                print(type(result[1]))
-                print(result[1].strftime('%m%d'))
+                # print(result)
+                # print(result[1])
+                # print(type(result[1]))
+                # print(result[1].strftime('%m%d'))
 
                 cursor2.close() #使用完要關閉游標
                 mydb.close() #使用完要關閉資料庫
                 ### 現在要去修改pushBottom的text
-                ui.pushButton.setText(str(result[1].strftime('%m%d')))
-                ui.pushButton_2.setText(str(result[2].strftime('%m%d')))
-                ui.pushButton_3.setText(str(result[3].strftime('%m%d')))
-                ui.pushButton_4.setText(str(result[4].strftime('%m%d')))
-                ui.pushButton_5.setText(str(result[5].strftime('%m%d')))
-                ui.pushButton_6.setText(str(result[6].strftime('%m%d')))
-                ui.pushButton_7.setText(str(result[7].strftime('%m%d')))
+                self.WeekForm_ui.pushButton.setText(str(result[1].strftime('%m%d')))
+                self.WeekForm_ui.pushButton_2.setText(str(result[2].strftime('%m%d')))
+                self.WeekForm_ui.pushButton_3.setText(str(result[3].strftime('%m%d')))
+                self.WeekForm_ui.pushButton_4.setText(str(result[4].strftime('%m%d')))
+                self.WeekForm_ui.pushButton_5.setText(str(result[5].strftime('%m%d')))
+                self.WeekForm_ui.pushButton_6.setText(str(result[6].strftime('%m%d')))
+                self.WeekForm_ui.pushButton_7.setText(str(result[7].strftime('%m%d')))
+        #### end updatePushBottomText function
 
-        ui.comboBox_weekBox.currentIndexChanged.connect(updatePushBottomText)
+        self.WeekForm_ui.comboBox_weekBox.currentIndexChanged.connect(updatePushBottomText) #當combobox有調整時，就連動到修改文字的function
+        self.WeekForm_ui.pushButton.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton.text()))
+        self.WeekForm_ui.pushButton_2.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton_2.text()))
+        self.WeekForm_ui.pushButton_3.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton_3.text()))
+        self.WeekForm_ui.pushButton_4.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton_4.text()))
+        self.WeekForm_ui.pushButton_5.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton_5.text()))
+        self.WeekForm_ui.pushButton_6.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton_6.text()))
+        self.WeekForm_ui.pushButton_7.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton_7.text()))
         self.weekForm.show()
         # end function
 
 
+    def showSignUpForm(self, bottom_text):
+        print("showSignForm")
+        print(bottom_text)
+        self.SignUpForm = QtWidgets.QWidget()
+        signUpFormUi = Ui_SignUpForm()
+        signUpFormUi.setupUi(self.SignUpForm)
+        signUpFormUi.label.setText(bottom_text)
+        self.SignUpForm.show()
 
 
 if __name__ == "__main__":
