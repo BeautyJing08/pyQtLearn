@@ -14,11 +14,56 @@ mydb = mysql.connector.connect(
     database = "volleykindom2")
 
 cursor = mydb.cursor()
-cursor.execute("SELECT * FROM weektable ")
+query = "SELECT * FROM weektable " #把所有weekTable的資料讀取出來
+cursor.execute(query) #讓游標讀取query語言
 
-result = cursor.fetchall()
-for row in result:
-    print(row)
+printarray=[]
+weekTagArray = []
+for row in cursor:
+    week_num = row[0]
+    week_MON = row[1].strftime('%y-%m-%d')
+    week_SUN = row[-2].strftime('%y-%m-%d')
+    week_Tag = row[-1]
+    # printarray = []
+    smallarray=[] #小Array來裝當週的資料
+    smallarray.append(week_num)
+    smallarray.append(week_MON)
+    smallarray.append(week_SUN)
+
+    smallarray.append(row[1].strftime('%m-%d'))
+    smallarray.append(row[-2].strftime('%m-%d'))
+    smallarray.append(week_Tag)
+    weekTagArray.append(week_Tag)
+    printarray.append(smallarray) #再把當週資料傳進printarray
+
+    # print(week_num,week_MON, week_SUN)
+    # print(printarray)
+
+# weekTagArray = []
+# for row in printarray:
+#     string01 = row[-2]
+#     startDate = string01[:2] + string01[3:]
+#     string02 = row[-1]
+#     endDate = string02[:2] + string02[3:]
+#     weekTag = startDate + "-" + endDate
+#     weekTagArray.append(weekTag)
+#     # print(weekTag)
+#
+# print(weekTagArray)
+
+
+
+
+print(weekTagArray)
+print(printarray[0])
+string = printarray[0][-2]
+startDate = string[:2] + string[3:]
+print(startDate)
+print(printarray[1])
+#
+# result = cursor.fetchall()
+# for row in result:
+#     print(row)
 
 cursor.close()
 mydb.close()
@@ -41,11 +86,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
         self.weekForm = QtWidgets.QWidget()
         ui = Ui_WeekForm()
         ui.setupUi(self.weekForm)
+        ui.comboBox_weekBox.clear() #把預設combobox的內容都先給清空
+        for weekTag in weekTagArray:
+            ui.comboBox_weekBox.addItem(weekTag) #把讀到的週次資料給顯示出來
+        # ui.comboBox_weekBox.addItem(printarray[0][-2])
+        # ui.comboBox_weekBox.removeItem(2)
 
-
-
-
-
+        # def updatePushBottomText(index):
+        #     selected_weekTag = ui.comboBox_weekBox.itemText(index)
+        #     ui.pushButton.setText(selected_weekTag)
+        #
+        #
+        # ui.comboBox_weekBox.currentIndexChanged.connect(updatePushBottomText())
 
         self.weekForm.show()
 
