@@ -48,6 +48,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
         super(MainWindow, self).__init__(parent) #呼叫父類別 "QtWidgets.QMainWindow" 的建構函式，確保父類別的初始化
         self.setupUi(self) #設置介面的版面配置和控制元件
         self.on_binding_ui() #這是讓功能鍵生效
+        self.bottom_text= ""
+        self.order_id = ""
         # self.n = 0 #若要記錄某個按鍵的點擊次數，那要建立在Main的__init__內，成為全域變數
         # end function
 
@@ -130,18 +132,49 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
         try:
             print("showSignForm")
             print(bottom_text)
+            self.bottom_text =bottom_text
             self.SignUpForm = QtWidgets.QWidget()
             self.SignUpFormUi = Ui_SignUpForm()
             self.SignUpFormUi.setupUi(self.SignUpForm)
             self.SignUpFormUi.label.setText(bottom_text)
 
-            self.SignUpFormUi.pushButton.clicked.connect(lambda: self.showOrderData(bottom_text)) #lambda貌似是個虛擬函數??可以幫忙傳到下一個function內
+            self.SignUpFormUi.pushButton.clicked.connect(lambda: self.showOrderData(self.bottom_text)) #lambda貌似是個虛擬函數??可以幫忙傳到下一個function內
+            self.SignUpFormUi.pushButton_SignIn.clicked.connect(lambda : self.insertTOsignInTable(self.order_id)) #連結報名的按鈕
             self.SignUpForm.show()
         except Exception as e:
             print("showSignUPfrom an error occurred: " ,str(e))
 
+    def insertTOsignInTable(self,order_id):
+        try:
+
+            # print("成功!!!")
+            name = self.SignUpFormUi.lineEdit_SignInName.text()
+            if self.SignUpFormUi.radioButton_boy.isChecked():
+                sex = 1
+            elif self.SignUpFormUi.radioButton_girl.isChecked():
+                sex = 0
+            phone = self.SignUpFormUi.lineEdit_phoneNum.text()
+
+            mydb = openMydb()
+            cursor6 = mydb.cursor()
+
+            query6 = "INSERT INTO `volleykindom2`.`signintable`(`FK_order_id`,`user_name`, `user_sex`, `user_phoneNum`) VALUES (%s,%s,%s,%s) "
+            value = (order_id,name,sex,phone)
+            cursor6.execute(query6,value)
+
+            mydb.commit()
+            cursor6.close()
+            mydb.close()
+            print("完成報名了喔喔喔喔喔?")
+            self.showOrderData(self.bottom_text) #會更新依次資料表
+            self.SignUpFormUi.label_bookIsSuccess.setStyleSheet("color=red")
+            self.SignUpFormUi.label_bookIsSuccess.setVisible(True) #把報名成功顯示出來
+        except Exception as e:
+            print("insertTOsignInTable a error occurred: ", str(e))
+
     def showOrderData(self,bottom_text):
         try:
+            self.bottom_text =bottom_text
             # self.n += 1
             print(f"hiJing, it's bottom check")
             print(bottom_text)
@@ -149,6 +182,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
             newDate = f"2023-{bottom_text[:2]}-{bottom_text[2:]}"
             print(newDate)
             findOrderResult = self.mysql_FindOrderTable(newDate) #去找到OrderTable內的資料
+            self.order_id= findOrderResult[0][0]
             self.SignUpFormUi.label_date_change.setText(findOrderResult[0][2].strftime('%y-%m-%d')) #設定報名時間
             self.SignUpFormUi.label_date_change.setVisible(True)
             self.SignUpFormUi.label_height_change.setText(findOrderResult[0][4]) #設定網高
@@ -164,8 +198,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
             self.SignUpFormUi.label_session_change.setVisible(True)
             self.SignUpFormUi.label_session_time_change.setText(sessionResult[0][3]+"-"+sessionResult[0][4]) #場次時間
             self.SignUpFormUi.label_session_time_change.setVisible(True)
+            findAlreadySignNumResult = self.mysql_FindalreadySignNum(findOrderResult[0][0])
+            self.SignUpFormUi.label_AlreadyBookNumChange.setText(str(findAlreadySignNumResult[2]))
+            self.SignUpFormUi.label_alreadyBookNum_women_change.setText(str(findAlreadySignNumResult[0]))
+            self.SignUpFormUi.label_alreadyBookNum_women_change.setVisible(True)
+            self.SignUpFormUi.label_alreadyBookNum_man_change.setText(str(findAlreadySignNumResult[1]))
+            self.SignUpFormUi.label_alreadyBookNum_man_change.setVisible(True)
+
+            # self.SignUpFormUi.pushButton_SignIn.clicked.connect(lambda : self.insertTOsignInTable(findOrderResult[0][0]))
         except Exception as e:
             print("showOrderData a error occurred: ", str(e))
+
     def mysql_FindOrderTable(self, newDate):
         try:
             mydb =openMydb()
@@ -194,6 +237,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
             return result
         except Exception as e:
             print("mysql_FindSession a error occurred: ", str(e))
+    def mysql_FindalreadySignNum(self,order_id): #這個是到signIntable內找到某個場次已報名人數
+        try:
+            mydb = openMydb()
+            cursor5 = mydb.cursor()
+            query5 = f"SELECT SUM(CASE WHEN user_sex = 0 THEN 1 ELSE 0 END) AS femaleCount, SUM(CASE WHEN user_sex = 1 THEN 1 ELSE 0 END) AS maleCount, COUNT(*) AS totalCount FROM volleykindom2.signIntable WHERE FK_order_id = {order_id};"
+            cursor5.execute(query5)
+            result = cursor5.fetchone()
+            print(result)
+            cursor5.close()
+            mydb.close()
+            return result
+        except Exception as e:
+            print("mysql_FindalreadySignNum a error occurred: ", str(e))
 
 if __name__ == "__main__":
     import sys
