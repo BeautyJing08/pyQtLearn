@@ -39,8 +39,6 @@ for row in cursor:
     weekTagArray.append(week_Tag) #把週次 tag 傳進weekTagArray
     dataArray.append(smallarray) #再把當週資料傳進printarray
 
-cursor.close()
-mydb.close()
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
@@ -90,19 +88,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
             else:#若選到的weekTag不是空值
                 print(selected_weekTag) #這是嘗試印出combox item有變動時的內容資料 #也成功惹
                 TrueAllpushBottom() #打開所有按鈕
-                mydb = openMydb() #重啟資料庫
-                cursor2 = mydb.cursor()
                 query2 = "SELECT * FROM weektable WHERE weekTag = %s"
                 params = (selected_weekTag,)
-                cursor2.execute(query2, params)
-                result = cursor2.fetchone()
+                cursor.execute(query2, params)
+                result = cursor.fetchone()
                 # print(result)
                 # print(result[1])
                 # print(type(result[1]))
                 # print(result[1].strftime('%m%d'))
 
-                cursor2.close() #使用完要關閉游標
-                mydb.close() #使用完要關閉資料庫
+          
                 ### 現在要去修改pushBottom的text
                 self.WeekForm_ui.pushButton.setText(str(result[1].strftime('%m%d')))
                 self.WeekForm_ui.pushButton_2.setText(str(result[2].strftime('%m%d')))
@@ -155,14 +150,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
         # mydb.close()
         # self.SignUpFormUi.label_date_change.set
     def mysql_FindOrderTable(self, newDate):
-        mydb =openMydb()
-        cursor3 = mydb.cursor()
         query3 = f"SELECT * FROM volleykindom2.ordertable WHERE date = '{newDate}'"
-        cursor3.execute(query3)
-        result = cursor3.fetchone()
+        cursor.execute(query3)
+        result = cursor.fetchone()
         print(result)
-        cursor3.close()
-        mydb.close()
 
 
 if __name__ == "__main__":
