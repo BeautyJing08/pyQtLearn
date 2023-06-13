@@ -127,43 +127,73 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
 
 
     def showSignUpForm(self, bottom_text):
-        print("showSignForm")
-        print(bottom_text)
-        self.SignUpForm = QtWidgets.QWidget()
-        self.SignUpFormUi = Ui_SignUpForm()
-        self.SignUpFormUi.setupUi(self.SignUpForm)
-        self.SignUpFormUi.label.setText(bottom_text)
-        self.SignUpForm.show()
-        self.SignUpFormUi.pushButton.clicked.connect(lambda: self.showOrderData(bottom_text)) #lambda貌似是個虛擬函數??可以幫忙傳到下一個function內
+        try:
+            print("showSignForm")
+            print(bottom_text)
+            self.SignUpForm = QtWidgets.QWidget()
+            self.SignUpFormUi = Ui_SignUpForm()
+            self.SignUpFormUi.setupUi(self.SignUpForm)
+            self.SignUpFormUi.label.setText(bottom_text)
 
+            self.SignUpFormUi.pushButton.clicked.connect(lambda: self.showOrderData(bottom_text)) #lambda貌似是個虛擬函數??可以幫忙傳到下一個function內
+            self.SignUpForm.show()
+        except Exception as e:
+            print("showSignUPfrom an error occurred: " ,str(e))
 
     def showOrderData(self,bottom_text):
-        # self.n += 1
-        print(f"hiJing, it's bottom check")
-        print(bottom_text)
-        print(type(bottom_text))
-        newDate = f"2023-{bottom_text[:2]}-{bottom_text[2:]}"
-        print(newDate)
-        self.mysql_FindOrderTable(newDate)
-        # mydb = openMydb()
-        # cursor3 = mydb.cursor()
-        # query3 = f"SELECT * FROM volleykindom2.ordertable WHERE date = '{newDate}'"
-        # cursor3.execute(query3)
-        # result = cursor3.fetchone()
-        # print(result)
-        # cursor3.close()
-        # mydb.close()
-        # self.SignUpFormUi.label_date_change.set
+        try:
+            # self.n += 1
+            print(f"hiJing, it's bottom check")
+            print(bottom_text)
+            print(type(bottom_text))
+            newDate = f"2023-{bottom_text[:2]}-{bottom_text[2:]}"
+            print(newDate)
+            findOrderResult = self.mysql_FindOrderTable(newDate) #去找到OrderTable內的資料
+            self.SignUpFormUi.label_date_change.setText(findOrderResult[0][2].strftime('%y-%m-%d')) #設定報名時間
+            self.SignUpFormUi.label_date_change.setVisible(True)
+            self.SignUpFormUi.label_height_change.setText(findOrderResult[0][4]) #設定網高
+            self.SignUpFormUi.label_height_change.setVisible(True)
+            self.SignUpFormUi.label_openNum_change.setText(str(findOrderResult[0][5])) #設定總人數
+            self.SignUpFormUi.label_openNum_change.setVisible(True)
+            self.SignUpFormUi.label_AlreadyBookNumChange.setText(str(findOrderResult[0][6])) #設定已報名人數
+            self.SignUpFormUi.label_AlreadyBookNumChange.setVisible(True)
+            self.SignUpFormUi.label_fee_change.setText(str(findOrderResult[0][7]))
+            self.SignUpFormUi.label_fee_change.setVisible(True)
+            sessionResult = self.mysql_FindSession(findOrderResult[0][3]) #讀取sessionTable
+            self.SignUpFormUi.label_session_change.setText(sessionResult[0][2]) #場次說明
+            self.SignUpFormUi.label_session_change.setVisible(True)
+            self.SignUpFormUi.label_session_time_change.setText(sessionResult[0][3]+"-"+sessionResult[0][4]) #場次時間
+            self.SignUpFormUi.label_session_time_change.setVisible(True)
+        except Exception as e:
+            print("showOrderData a error occurred: ", str(e))
     def mysql_FindOrderTable(self, newDate):
-        mydb =openMydb()
-        cursor3 = mydb.cursor()
-        query3 = f"SELECT * FROM volleykindom2.ordertable WHERE date = '{newDate}'"
-        cursor3.execute(query3)
-        result = cursor3.fetchone()
-        print(result)
-        cursor3.close()
-        mydb.close()
-
+        try:
+            mydb =openMydb()
+            cursor3 = mydb.cursor()
+            query3 = f"SELECT * FROM volleykindom2.ordertable WHERE date = '{newDate}'"
+            cursor3.execute(query3)
+            result =cursor3.fetchall() #為甚麼這邊要用fetchall()不會跳出問題， i do not know why
+            # result = cursor3.fetchone()
+            print(result)
+            cursor3.close()
+            mydb.close()
+            return result
+        except Exception as e:
+            print("mysql_FindOrderTable a error occurred: ", str(e))
+            # return result
+    def mysql_FindSession(self, session):
+        try:
+            mydb = openMydb()
+            cursor4 = mydb.cursor()
+            query4 = f"SELECT * FROM volleykindom2.sessiontable WHERE session = '{session}'"
+            cursor4.execute(query4)
+            result = cursor4.fetchall()
+            print(result)
+            cursor4.close()
+            mydb.close()
+            return result
+        except Exception as e:
+            print("mysql_FindSession a error occurred: ", str(e))
 
 if __name__ == "__main__":
     import sys
