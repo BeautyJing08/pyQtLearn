@@ -48,6 +48,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
         super(MainWindow, self).__init__(parent) #呼叫父類別 "QtWidgets.QMainWindow" 的建構函式，確保父類別的初始化
         self.setupUi(self) #設置介面的版面配置和控制元件
         self.on_binding_ui() #這是讓功能鍵生效
+        # self.n = 0 #若要記錄某個按鍵的點擊次數，那要建立在Main的__init__內，成為全域變數
         # end function
 
 
@@ -82,11 +83,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
 
         def updatePushBottomText(index):
             selected_weekTag = self.WeekForm_ui.comboBox_weekBox.itemText(index)
-            if selected_weekTag == "":
+            if selected_weekTag == "": #若選到的weekTag 是字串"" 空值
                 print("這沒有資料")
-                FalusAllpushBottom()
+                FalusAllpushBottom() #就把所有按鈕封鎖
                 self.WeekForm_ui.pushButton.setText(""),self.WeekForm_ui.pushButton_2.setText("") ,self.WeekForm_ui.pushButton_3.setText(""),self.WeekForm_ui.pushButton_4.setText(""),self.WeekForm_ui.pushButton_5.setText("") ,self.WeekForm_ui.pushButton_6.setText(""),self.WeekForm_ui.pushButton_7.setText("")
-            else:
+            else:#若選到的weekTag不是空值
                 print(selected_weekTag) #這是嘗試印出combox item有變動時的內容資料 #也成功惹
                 TrueAllpushBottom() #打開所有按鈕
                 mydb = openMydb() #重啟資料庫
@@ -113,6 +114,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
         #### end updatePushBottomText function
 
         self.WeekForm_ui.comboBox_weekBox.currentIndexChanged.connect(updatePushBottomText) #當combobox有調整時，就連動到修改文字的function
+
         self.WeekForm_ui.pushButton.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton.text()))
         self.WeekForm_ui.pushButton_2.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton_2.text()))
         self.WeekForm_ui.pushButton_3.clicked.connect(lambda :self.showSignUpForm(self.WeekForm_ui.pushButton_3.text()))
@@ -128,10 +130,39 @@ class MainWindow(QtWidgets.QMainWindow, Ui_VolleyKindomForm):
         print("showSignForm")
         print(bottom_text)
         self.SignUpForm = QtWidgets.QWidget()
-        signUpFormUi = Ui_SignUpForm()
-        signUpFormUi.setupUi(self.SignUpForm)
-        signUpFormUi.label.setText(bottom_text)
+        self.SignUpFormUi = Ui_SignUpForm()
+        self.SignUpFormUi.setupUi(self.SignUpForm)
+        self.SignUpFormUi.label.setText(bottom_text)
         self.SignUpForm.show()
+        self.SignUpFormUi.pushButton.clicked.connect(lambda: self.showOrderData(bottom_text)) #lambda貌似是個虛擬函數??可以幫忙傳到下一個function內
+
+
+    def showOrderData(self,bottom_text):
+        # self.n += 1
+        print(f"hiJing, it's bottom check")
+        print(bottom_text)
+        print(type(bottom_text))
+        newDate = f"2023-{bottom_text[:2]}-{bottom_text[2:]}"
+        print(newDate)
+        self.mysql_FindOrderTable(newDate)
+        # mydb = openMydb()
+        # cursor3 = mydb.cursor()
+        # query3 = f"SELECT * FROM volleykindom2.ordertable WHERE date = '{newDate}'"
+        # cursor3.execute(query3)
+        # result = cursor3.fetchone()
+        # print(result)
+        # cursor3.close()
+        # mydb.close()
+        # self.SignUpFormUi.label_date_change.set
+    def mysql_FindOrderTable(self, newDate):
+        mydb =openMydb()
+        cursor3 = mydb.cursor()
+        query3 = f"SELECT * FROM volleykindom2.ordertable WHERE date = '{newDate}'"
+        cursor3.execute(query3)
+        result = cursor3.fetchone()
+        print(result)
+        cursor3.close()
+        mydb.close()
 
 
 if __name__ == "__main__":
